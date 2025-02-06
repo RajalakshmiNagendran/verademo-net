@@ -47,4 +47,4 @@ steps:
     script: |
       curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
       unzip -o pipeline-scan-LATEST.zip
-      java -jar pipeline-scan.jar -vid '' -vkey '' -f $(Pipeline.Workspace)/$(Build.BuildId).zip
+      java -jar pipeline-scan.jar -vid $(myVeracodeId) -vkey $(myVeracodeSecret) -f $(Pipeline.Workspace)/$(Build.BuildId).zip
