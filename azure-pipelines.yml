@@ -44,7 +44,7 @@ steps:
     AnalysisService: 'veracodeservice' # service connection name for accessing Veracode
     veracodeAppProfile: '$(system.teamProject)' # Veracode application profile to scan
     version: '$(build.buildNumber)' # name of the scan to run
-    filepath: '$(Pipeline.Workspace)' # filepath or folderpath of files to upload to Veracode
+    filepath: '$(Pipeline.Workspace)/$(Build.BuildId).zip' # filepath or folderpath of files to upload to Veracode
     createProfile: false # false to enforce using existing profiles
     failBuildIfUploadAndScanBuildStepFails: true # true to fail build if Upload and Scan task fails to start
     importResults: true # required to view Veracode results in Azure DevOps
