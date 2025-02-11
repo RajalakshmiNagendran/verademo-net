@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'azureagent'
 
 steps:
 # Step 1: Package Binaries
