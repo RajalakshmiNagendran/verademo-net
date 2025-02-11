@@ -1,5 +1,7 @@
 trigger:
-- veracode-upload-and-scan
+  branches:
+    include:
+      - veracode-upload-and-scan
 
 pool:
   name: 'azureagent'
