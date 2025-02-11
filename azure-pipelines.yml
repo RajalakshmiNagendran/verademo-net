@@ -1,10 +1,8 @@
 trigger:
-  branches:
-    include:
-      - main
+- main
 
 pool:
-  name: 'azureagent'
+  vmImage: 'ubuntu-latest'
 
 steps:
 # Step 1: Package Binaries
@@ -25,19 +23,21 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
 
-# Publish (upload) a file or directory as a named artifact for the current run.
-- task: PublishPipelineArtifact@1
+# Step 3: Publish the Archived File
+- task: PublishBuildArtifacts@1
+  displayName: Publish Packaged Binaries
   inputs:
-    artifactName: 'build-output'
-    targetPath: '$(Build.ArtifactStagingDirectory)'
-    publishLocation: 'pipeline'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    ArtifactName: 'packaged-binaries'
+    publishLocation: 'Container'
 
-# Download build and pipeline artifacts.
+# Step 4: Download the Archived File
 - task: DownloadPipelineArtifact@2
+  displayName: Download Packaged Binaries
   inputs:
     buildType: 'current'
-    artifactName: 'build-output'
-    targetPath: '$(Pipeline.Workspace)'
+    artifact: 'packaged-binaries'
+    path: '$(Pipeline.Workspace)'
 
 # Step 5: Scan the ZIP File with Veracode
 - task: CmdLine@2
