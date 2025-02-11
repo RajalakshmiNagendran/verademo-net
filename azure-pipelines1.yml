@@ -1,0 +1,42 @@
+trigger:
+- main
+
+pool:
+  name: 'azureagent'
+
+steps:
+# Step 1: Package Binaries
+- task: CmdLine@2
+  displayName: Package Artifacts
+  inputs:
+    script: |
+      curl -fsS https://tools.veracode.com/veracode-cli/install | sh
+      ./veracode package --source $(Build.SourcesDirectory) --output $(Build.ArtifactStagingDirectory)/artifacts --trust
+
+
+# Step 2: Archive Packaged Binaries
+- task: ArchiveFiles@2
+  displayName: Archive Packaged Binaries
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/artifacts'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+
+# Step 3: Publish the Archived File
+- task: PublishBuildArtifacts@1
+  displayName: Publish Packaged Binaries
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    ArtifactName: 'packaged-binaries'
+    publishLocation: 'Container'
+
+# Step 4: Download the Archived File
+- task: DownloadPipelineArtifact@2
+  displayName: Download Packaged Binaries
+  inputs:
+    buildType: 'current'
+    artifact: 'packaged-binaries'
+    path: '$(Pipeline.Workspace)'
+
