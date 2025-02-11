@@ -13,13 +13,13 @@ steps:
   inputs:
     script: |
       curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-      ./veracode package --source $(Build.SourcesDirectory) --output $(Build.ArtifactStagingDirectory)/artifacts --trust
+      ./veracode package --source $(Build.SourcesDirectory) --output $(Build.StagingDirectory)/artifacts --trust
 
 #step 2: Extract files
 - task: ExtractFiles@1
   inputs:
-    archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/artifacts/**/*.zip' # string. Required. Archive file patterns. Default: **/*.zip.
-    destinationFolder: '$(Build.ArtifactStagingDirectory)'
+    archiveFilePatterns: '$(Build.StagingDirectory)/artifacts/**/*.zip'
+    destinationFolder: $(Build.ArtifactStagingDirectory)
 
 # Step 3: Download the pipeline Artifiact
 - task: DownloadPipelineArtifact@2
