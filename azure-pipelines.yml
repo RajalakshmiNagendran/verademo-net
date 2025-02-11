@@ -13,26 +13,13 @@ steps:
       curl -fsS https://tools.veracode.com/veracode-cli/install | sh
       ./veracode package --source $(Build.SourcesDirectory) --output $(Build.ArtifactStagingDirectory)/artifacts --trust
 
-
-# Step 2: Archive Packaged Binaries
-- task: ArchiveFiles@2
-  displayName: Archive Packaged Binaries
+#step 2: Extract files
+- task: ExtractFiles@1
   inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/artifacts'
-    includeRootFolder: true
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
+    archiveFilePatterns: '$(Build.ArtifactStagingDirectory)/artifacts/*.zip' # string. Required. Archive file patterns. Default: **/*.zip.
+    destinationFolder: '$(Build.ArtifactStagingDirectory)'
 
-# Step 3: Publish the Archived File
-- task: PublishBuildArtifacts@1
-  displayName: Publish Packaged Binaries
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    ArtifactName: 'packaged-binaries'
-    publishLocation: 'Container'
-
-# Step 4: Download the Archived File
+# Step 3: Download the pipeline Artifiact
 - task: DownloadPipelineArtifact@2
   displayName: Download Packaged Binaries
   inputs:
@@ -40,13 +27,14 @@ steps:
     artifact: 'packaged-binaries'
     path: '$(Pipeline.Workspace)'
 
+#scan the artifact with veracode upload and scan
 - task: Veracode@3
   inputs:
     ConnectionDetailsSelection: 'Service Connection'
     AnalysisService: 'veracodeservice'
     veracodeAppProfile: '$(system.teamProject)'
     version: '$(build.buildNumber)'
-    filepath: '$(build.artifactstagingdirectory)'
+    filepath: '$(Pipeline.Workspace)'
     createProfile: false
     failBuildIfUploadAndScanBuildStepFails: true
     importResults: true
