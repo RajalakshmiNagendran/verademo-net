@@ -25,21 +25,19 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
     replaceExistingArchive: true
 
-# Step 3: Publish the Archived File
-- task: PublishBuildArtifacts@1
-  displayName: Publish Packaged Binaries
+# Publish (upload) a file or directory as a named artifact for the current run.
+- task: PublishPipelineArtifact@1
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'packaged-binaries'
-    publishLocation: 'Container'
+    artifactName: 'build-output'
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    publishLocation: 'pipeline'
 
-# Step 4: Download the Archived File
+# Download build and pipeline artifacts.
 - task: DownloadPipelineArtifact@2
-  displayName: Download Packaged Binaries
   inputs:
     buildType: 'current'
-    artifact: 'packaged-binaries'
-    path: '$(Pipeline.Workspace)'
+    artifactName: 'build-output'
+    targetPath: '$(Pipeline.Workspace)'
 
 # Step 5: Scan the ZIP File with Veracode
 - task: CmdLine@2
