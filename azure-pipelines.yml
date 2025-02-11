@@ -1,5 +1,5 @@
 trigger:
-- main
+- veracode-upload-and-scan
 
 pool:
   name: 'azureagent'
@@ -39,4 +39,3 @@ steps:
     buildType: 'current'
     artifact: 'packaged-binaries'
     path: '$(Pipeline.Workspace)'
-
