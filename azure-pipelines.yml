@@ -14,9 +14,6 @@ steps:
     script: |
       curl -fsS https://tools.veracode.com/veracode-cli/install | sh
       ./veracode package --source $(Build.SourcesDirectory) --output $(Build.ArtifactStagingDirectory)/artifacts --trust
-  env: 
-    VERACODE_API_KEY_ID: $(myVeracodeId)
-    VERACODE_API_KEY_SECRET: $(myVeracodeSecret)
 
 # Step 2: Archive Packaged Binaries
 - task: ArchiveFiles@2
@@ -32,7 +29,7 @@ steps:
 - task: PublishBuildArtifacts@1
   displayName: Publish Packaged Binaries
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'packaged-binaries'
     publishLocation: 'Container'
 
