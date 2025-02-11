@@ -19,7 +19,7 @@ steps:
 - task: ExtractFiles@1
   inputs:
     archiveFilePatterns: '$(Build.StagingDirectory)/artifacts/**/*.zip'
-    destinationFolder: $(Build.ArtifactStagingDirectory)
+    destinationFolder: $(Build.ArtifactStagingDirectory)/extracts
 
 # Step 3: Download the pipeline Artifiact
 - task: DownloadPipelineArtifact@2
