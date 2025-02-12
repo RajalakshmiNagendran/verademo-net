@@ -25,3 +25,17 @@ steps:
       projects: "$(solution)"  # Path to your solution file
       arguments: '-c $(buildConfiguration) -o $(build.artifactStagingDirectory) /p:PublishSingleFile=true /p:PackageAsSingleFile=true'  # Arguments for publishing and single-file package
     displayName: 'Build and Publish Solution'
+  - task: CmdLine@2
+    displayName: Veracode Pipeline Scan
+    inputs:
+      script: |
+        curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+        unzip -o pipeline-scan-LATEST.zip
+        java -jar pipeline-scan.jar -vid $(myVeracodeId) -vkey $(myVeracodeSecret) -f $(build.artifactstagingdirectory)/app.zip || true
+
+  - task: PublishBuildArtifacts@1
+    displayName: Create Build Artifact for Veracode Pipeline Scan Results
+    inputs:
+      PathtoPublish: "results.json"
+      ArtifactName: "Build"
+      publishLocation: "Container"
