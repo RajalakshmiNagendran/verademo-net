@@ -4,19 +4,16 @@ trigger:
 pool:
   name: 'azureagent'
 
-variables:
-  solution: "**/*.sln"
-  buildPlatform: "Any CPU"
-  buildConfiguration: "Release"
 steps:
   - task: UseDotNet@2
     inputs:
       version: '8.x'
-      includePreviewVersions: true # Required for preview versions
+      includePreviewVersions: true
 
   - task: DotNetCoreCLI@2
-    displayName: 'dotnet build'
+    displayName: Build
     inputs:
-      command: 'build'
-      configuration: $(buildConfiguration)
+      command: build
+      projects: '**/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
   
