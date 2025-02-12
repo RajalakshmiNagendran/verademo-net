@@ -8,17 +8,16 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-  - task: UseDotNet@2
-    inputs:
-      version: '8.x'
-      includePreviewVersions: true
-
+  - task: NuGetToolInstaller@1
   - task: NuGetCommand@2
     inputs:
       command: 'restore'
       restoreSolution: '**/*.sln'
       feedsToUse: 'select'
-
+  - task: UseDotNet@2
+    inputs:
+      version: '8.x'
+      includePreviewVersions: true
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
