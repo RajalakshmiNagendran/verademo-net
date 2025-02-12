@@ -1,7 +1,5 @@
 trigger:
-  branches:
-    include:
-      - main
+  - main
 
 pool:
   name: 'azureagent'
@@ -10,16 +8,15 @@ variables:
   solution: "**/*.sln"
   buildPlatform: "Any CPU"
   buildConfiguration: "Release"
-
 steps:
-  - task: NuGetToolInstaller@1
-
-  - task: NuGetCommand@2
+  - task: UseDotNet@2
     inputs:
-      restoreSolution: "$(solution)"
+      version: '8.x'
+      includePreviewVersions: true # Required for preview versions
 
   - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
     inputs:
       command: 'build'
-      projects: "$(solution)"
-      arguments: '--configuration $(buildConfiguration)'
+      configuration: $(buildConfiguration)
+  
