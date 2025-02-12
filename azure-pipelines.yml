@@ -6,46 +6,20 @@ trigger:
 pool:
   name: 'azureagent'
 
+variables:
+  solution: "**/*.sln"
+  buildPlatform: "Any CPU"
+  buildConfiguration: "Release"
+
 steps:
-# Step 1: Package Binaries
-- task: CmdLine@2
-  displayName: Package Artifacts
-  inputs:
-    script: |
-      curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-      ./veracode package --source $(Build.SourcesDirectory) --output $(Build.ArtifactStagingDirectory)/artifacts --trust
+  - task: NuGetToolInstaller@1
 
-# Step 2: Archive Packaged Binaries
-- task: ArchiveFiles@2
-  displayName: Archive Packaged Binaries
-  inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/artifacts'
-    includeRootFolder: true
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
+  - task: NuGetCommand@2
+    inputs:
+      restoreSolution: "$(solution)"
 
-# Step 3: Publish the Archived File
-- task: PublishBuildArtifacts@1
-  displayName: Publish Packaged Binaries
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    ArtifactName: 'packaged-binaries'
-    publishLocation: 'Container'
-
-# Step 4: Download the Archived File
-- task: DownloadPipelineArtifact@2
-  displayName: Download Packaged Binaries
-  inputs:
-    buildType: 'current'
-    artifact: 'packaged-binaries'
-    path: '$(Pipeline.Workspace)'
-
-# Step 5: Scan the ZIP File with Veracode
-- task: CmdLine@2
-  displayName: Veracode Pipeline Scan
-  inputs:
-    script: |
-      curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-      unzip -o pipeline-scan-LATEST.zip
-      java -jar pipeline-scan.jar -vid $(myVeracodeId) -vkey $(myVeracodeSecret) -f $(Pipeline.Workspace)/$(Build.BuildId).zip
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: "$(solution)"
+      arguments: '--configuration $(buildConfiguration)'
