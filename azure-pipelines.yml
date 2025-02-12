@@ -1,25 +1,28 @@
 trigger:
-- main  
+  - main
 
 pool:
   name: 'azureagent'
 
+variables:
+  buildConfiguration: 'Release'
+
 steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '6.x'
-    installationPath: $(Agent.ToolsDirectory)/dotnet
-
-- script: |
-    dotnet restore   # Restore the dependencies
-    dotnet build     # Build the application
-  displayName: 'Restore and Build'
-
-- script: |
-    dotnet publish -c Release -o $(Build.ArtifactStagingDirectory)  # Publish the app
-  displayName: 'Publish'
-
-- publish: $(Build.ArtifactStagingDirectory)  # Publish build artifacts
-  artifact: drop
-  displayName: 'Publish Artifact'
+  - task: NuGetToolInstaller@1
+  
+  - task: NuGetCommand@2
+    inputs:
+      command: 'restore'
+      restoreSolution: '**/*.sln'
+      feedsToUse: 'select'
+  - task: UseDotNet@2
+    inputs:
+      version: '8.x'
+      includePreviewVersions: true
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: build
+      projects: '**/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+  
