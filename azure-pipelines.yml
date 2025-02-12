@@ -6,38 +6,37 @@ trigger:
 pool:
   name: 'azureagent'
 
+variables:
+  buildConfiguration: 'Release'
+  solution: '**/*.sln'
+
 steps:
-# Step 1: Package Binaries
-- task: CmdLine@2
-  displayName: Package Artifacts
-  inputs:
-    script: |
-      curl -fsS https://tools.veracode.com/veracode-cli/install | sh
-      ./veracode package --source $(Build.SourcesDirectory) --output $(Build.StagingDirectory)/artifacts --trust
 
-#step 2: Extract files
-- task: ExtractFiles@1
-  inputs:
-    archiveFilePatterns: '$(Build.StagingDirectory)/artifacts/**/*.zip'
-    destinationFolder: $(Build.ArtifactStagingDirectory)/extracts
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: '$(solution)'
+      feedsToUse: 'select'
+  - task: UseDotNet@2
+    inputs:
+      version: '8.x'
+      includePreviewVersions: true
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'publish'  # Publish command performs both build and publish
+      projects: "$(solution)"  # Path to your solution file
+      arguments: '-c $(buildConfiguration) -o $(build.artifactStagingDirectory) /p:PublishSingleFile=true /p:PackageAsSingleFile=true'  # Arguments for publishing and single-file package
+    displayName: 'Build and Publish Solution'
 
-# Step 3: Download the pipeline Artifiact
-- task: DownloadPipelineArtifact@2
-  displayName: Download Packaged Binaries
-  inputs:
-    buildType: 'current'
-    artifact: 'packaged-binaries'
-    path: '$(Pipeline.Workspace)'
-
-#scan the artifact with veracode upload and scan
-- task: Veracode@3
-  inputs:
-    ConnectionDetailsSelection: 'Service Connection'
-    AnalysisService: 'veracodeservice'
-    veracodeAppProfile: '$(system.teamProject)'
-    version: '$(build.buildNumber)'
-    filepath: '$(Pipeline.Workspace)'
-    createProfile: false
-    failBuildIfUploadAndScanBuildStepFails: true
-    importResults: true
-    maximumWaitTime: '360'
+  #scan the artifact with veracode upload and scan
+  - task: Veracode@3
+    inputs:
+      ConnectionDetailsSelection: 'Service Connection'
+      AnalysisService: 'veracodeservice'
+      veracodeAppProfile: '$(system.teamProject)'
+      version: '$(build.buildNumber)'
+      filepath: '$(build.artifactStagingDirectory)/app.zip'
+      createProfile: true
+      failBuildIfUploadAndScanBuildStepFails: true
+      importResults: true
+      maximumWaitTime: '360'
