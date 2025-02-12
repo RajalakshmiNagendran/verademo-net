@@ -6,21 +6,22 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  solution: '**/*.sln'
 
 steps:
 
   - task: DotNetCoreCLI@2
     inputs:
       command: 'restore'
-      projects: '**/*.sln'
+      projects: '$(solution)'
       feedsToUse: 'select'
   - task: UseDotNet@2
     inputs:
       version: '8.x'
       includePreviewVersions: true
   - task: DotNetCoreCLI@2
-    displayName: Build
     inputs:
-      command: build
-      projects: '**/*.csproj'
-      arguments: '--configuration $(buildConfiguration)'
+      command: 'publish'  # Publish command performs both build and publish
+      projects: "$(solution)"  # Path to your solution file
+      arguments: '-c $(buildConfiguration) -o $(build.artifactStagingDirectory) /p:PublishSingleFile=true /p:PackageAsSingleFile=true'  # Arguments for publishing and single-file package
+    displayName: 'Build and Publish Solution'
