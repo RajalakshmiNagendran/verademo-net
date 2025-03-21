@@ -20,7 +20,7 @@ steps:
   displayName: 'dotnet build'
   inputs:
     command: 'build'
-    packagesToPack: '**/*.csproj'
+    projects: '**/*.sln'
     configuration: $(buildConfiguration)
 
 - task: DotNetCoreCLI@2
