@@ -8,7 +8,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'azureagent'
+  name: 'azureagent'
 
 steps:  
 - task: UseDotNet@2
