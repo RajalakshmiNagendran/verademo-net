@@ -13,8 +13,8 @@ pool:
 steps:  
 - task: UseDotNet@2
   inputs:
-    version: '8.0.100'
-    includePreviewVersions: true # Required for preview versions
+    packageType: 'sdk'
+    version: '8.x'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
